@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 # -*- coding: latin-1 -*-
 
 """
@@ -116,7 +116,7 @@ class PortScanner(object):
         detects nmap on the system and nmap version
         may raise PortScannerError exception if nmap is not found in the path
 
-        nmap_search_path = tupple of string where to search for nmap executable. Change this if you want to use a specific version of nmap.
+        nmap_search_path = tuple of string where to search for nmap executable. Change this if you want to use a specific version of nmap.
         """
 
         self._nmap_path = ''                # nmap path
@@ -500,7 +500,7 @@ class PortScannerAsync(object):
         return
 
 
-    def scan(self, hosts='127.0.0.1', ports=None, arguments='-sV', callback=None):
+    def scan(self, hosts='127.0.0.1', ports=None, arguments='-sV', callback=None, callback_arguments=None):
         """
         Scan given hosts in a separate process and return host by host result using callback function
 
@@ -516,20 +516,25 @@ class PortScannerAsync(object):
         assert type(ports) in (str, type(None)), 'Wrong type for [ports], should be a string [was {0}]'.format(type(ports))
         assert type(arguments) is str, 'Wrong type for [arguments], should be a string [was {0}]'.format(type(arguments))
         assert type(callback) in (types.FunctionType, type(None)), 'Wrong type for [callback], should be a function or None [was {0}]'.format(type(callback))
+        assert type(callback_arguments) in (types.ListType, types.TupleType, type(None)), 'Wrong type for [callback_arguments], should be a list, tuple, dictionary or None [was {0}]'.format(type(callback_arguments))
         
-        def scan_progressive(self, hosts, ports, arguments, callback):
+        def scan_progressive(self, hosts, ports, arguments, callback, callback_arguments):
             for host in self._nm.listscan(hosts):
                 try:
                     scan_data = self._nm.scan(host, ports, arguments)
                 except PortScannerError:
                     pass
                 if callback is not None and isinstance(callback, collections.Callable):
-                    callback(host, scan_data)
+                    if callback_arguments is not None:
+                        callback(host, scan_data, callback_arguments)
+                    else:
+                        callback(host, scan_data)
+
             return
 
         self._process = Process(
             target=scan_progressive,
-            args=(self, hosts, ports, arguments, callback)
+            args=(self, hosts, ports, arguments, callback, callback_arguments)
             )
         self._process.daemon = True
         self._process.start()
@@ -570,7 +575,6 @@ class PortScannerAsync(object):
 
 ############################################################################
     
-
 
 class PortScannerHostDict(dict):
     """

@@ -5,25 +5,25 @@ ARCHIVE=`python setup.py --fullname`
 
 
 test:
-	@python3 nmap/nmap.py
+	@python nmap/nmap.py
 
 install:
-	@python3 setup.py install
+	@python setup.py install
 
 archive: doc
-	@python3 setup.py sdist
+	@python setup.py sdist
 	@echo Archive is create and named dist/$(ARCHIVE).tar.gz
 	@echo -n md5sum is :
 	@md5sum dist/$(ARCHIVE).tar.gz
 
 license:
-	@python3 setup.py --license
+	@python setup.py --license
 
 register:
-	@python3 setup.py register
+	@python setup.py register
 
 doc:
-	@pydoc3 -w nmap/nmap.py
+	@pydoc -w nmap/nmap.py
 
 web:
 	@echo $(VERSION) > web/python-nmap_CURRENT_VERSION.txt
