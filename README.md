@@ -2,8 +2,8 @@
 
 Homepage: http://xael.org/norman/python/python-nmap/
 
-Original version: Alexandre Norman (norman@xael.org)
-Forked: Sean Leach (github.com/sleach) - moved to github, cleaned-up and new functionality added.  See git log
+* Original version: Alexandre Norman (norman@xael.org)
+* Forked: Sean Leach (github.com/sleach) - moved to github, cleaned-up and new functionality added.  See git log
 
 python-nmap is a python library which helps in using nmap port scanner.
 It allows to easilly manipulate nmap scan results and will be a perfect
@@ -12,7 +12,7 @@ and reports. It also supports nmap script outputs.
 
 ## Typical usage looks like:: 
 
-```
+```python
     #!/usr/bin/env python
     import nmap                         # import nmap.py module
     nm = nmap.PortScanner()         # instantiate nmap.PortScanner object
@@ -35,7 +35,7 @@ and reports. It also supports nmap script outputs.
 ```
 
 ## A more usefull example :
-```
+```python
     for host in nm.all_hosts():
         print('----------------------------------------------------')
         print('Host : %s (%s)' % (host, nm[host].hostname()))

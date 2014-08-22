@@ -1,91 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: latin-1 -*-
-
-"""
-nmap.py - version and date, see below
-
-Author : Alexandre Norman - norman at xael.org
-Contributors: Steve 'Ashcrow' Milner - steve at gnulinux.net
-              Brian Bustin - brian at bustin.us
-Licence : GPL v3 or any later version
-
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-
-Test strings :
-^^^^^^^^^^^^
->>> import nmap
->>> if __get_last_online_version() != __version__:
-...     raise ValueError('Current version is {0} - Last published version is {1}'.format(__version__, __get_last_online_version()))
->>> nm = nmap.PortScanner()
->>> try:
-...     nm.scan(arguments='-wrongargs')
-... except nmap.PortScannerError:
-...     pass
->>> r=nm.scan('127.0.0.1', '22-443')
->>> nm.command_line()
-'nmap -oX - -p 22-443 -sV 127.0.0.1'
->>> nm.scaninfo()
-{'tcp': {'services': '22-443', 'method': 'connect'}}
->>> nm.all_hosts()
-['127.0.0.1']
->>> nm['127.0.0.1'].hostname()
-'localhost.localdomain'
->>> nm['127.0.0.1'].state()
-'up'
->>> nm['127.0.0.1'].all_protocols()
-['tcp']
->>> nm['127.0.0.1']['tcp'].keys()
-dict_keys([80, 25, 443, 22, 111])
->>> nm['127.0.0.1'].has_tcp(22)
-True
->>> nm['127.0.0.1'].has_tcp(23)
-False
->>> nm['127.0.0.1']['tcp'][22]
-{'state': 'open', 'reason': 'syn-ack', 'name': 'ssh'}
->>> nm['127.0.0.1'].tcp(22)
-{'state': 'open', 'reason': 'syn-ack', 'name': 'ssh'}
->>> nm['127.0.0.1']['tcp'][22]['state']
-'open'
->>> nm.scanstats()['uphosts']
-'1'
->>> nm.scanstats()['downhosts']
-'0'
->>> nm.scanstats()['totalhosts']
-'1'
->>> 'timestr' in nm.scanstats().keys()
-True
->>> 'elapsed' in nm.scanstats().keys()
-True
->>> nm.listscan('192.168.1.0/30')
-['192.168.1.0', '192.168.1.1', '192.168.1.2', '192.168.1.3']
->>> nm.listscan('localhost/30')
-['127.0.0.0', '127.0.0.1', '127.0.0.2', '127.0.0.3']
->>> r=nm.scan('127.0.0.1', arguments='-O')
->>> nm['127.0.0.1']['osclass']
-[{'vendor': u'Linux', 'osfamily': u'Linux', 'type': u'general purpose', 'osgen': u'2.6.X', 'accuracy': u'98'}, {'vendor': u'Netgear', 'osfamily': u'embedded', 'type': u'WAP', 'osgen': '', 'accuracy': ''}, {'vendor': u'Gemtek', 'osfamily': u'embedded', 'type': u'WAP', 'osgen': '', 'accuracy': ''}, {'vendor': u'Siemens', 'osfamily': u'embedded', 'type': u'WAP', 'osgen': '', 'accuracy': ''}, {'vendor': u'Linux', 'osfamily': u'Linux', 'type': u'general purpose', 'osgen': u'2.4.X', 'accuracy': u'90'}, {'vendor': u'Linksys', 'osfamily': u'embedded', 'type': u'WAP', 'osgen': '', 'accuracy': ''}, {'vendor': u'Linux', 'osfamily': u'Linux', 'type': u'WAP', 'osgen': u'2.4.X', 'accuracy': u'90'}, {'vendor': u'Nokia', 'osfamily': u'Linux', 'type': u'general purpose', 'osgen': u'2.6.X', 'accuracy': u'89'}]
->>> nm['127.0.0.1']['fingerprint']
-'OS:SCAN(V=5.50%D=11/9%OT=22%CT=1%CU=37937%PV=N%DS=0%DC=L%G=Y%TM=4EBAE79D%P=\\nOS:i686-pc-linux-gnu)SEQ(SP=103%GCD=1%ISR=10D%TI=Z%CI=Z%II=I%TS=8)OPS(O1=M4\\nOS:00CST11NW6%O2=M400CST11NW6%O3=M400CNNT11NW6%O4=M400CST11NW6%O5=M400CST11\\nOS:NW6%O6=M400CST11)WIN(W1=8000%W2=8000%W3=8000%W4=8000%W5=8000%W6=8000)ECN\\nOS:(R=Y%DF=Y%T=40%W=8018%O=M400CNNSNW6%CC=Y%Q=)T1(R=Y%DF=Y%T=40%S=O%A=S+%F=\\nOS:AS%RD=0%Q=)T2(R=N)T3(R=Y%DF=Y%T=40%W=8000%S=O%A=S+%F=AS%O=M400CST11NW6%R\\nOS:D=0%Q=)T4(R=Y%DF=Y%T=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)T5(R=Y%DF=Y%T=40%W=0%\\nOS:S=Z%A=S+%F=AR%O=%RD=0%Q=)T6(R=Y%DF=Y%T=40%W=0%S=A%A=Z%F=R%O=%RD=0%Q=)T7(\\nOS:R=Y%DF=Y%T=40%W=0%S=Z%A=S+%F=AR%O=%RD=0%Q=)U1(R=Y%DF=N%T=40%IPL=164%UN=0\\nOS:%RIPL=G%RID=G%RIPCK=G%RUCK=G%RUD=G)IE(R=Y%DFI=N%T=40%CD=S)\\n'
-"""
-
-
-__author__ = 'Alexandre Norman (norman@xael.org)'
-__version__ = '0.2.4'
-__last_modification__ = '2011.11.09'
-
-
 import os
 import re
 import string
@@ -95,7 +9,6 @@ import types
 import xml.dom.minidom
 import shlex
 import collections
-
 
 try:
     from multiprocessing import Process
@@ -500,7 +413,7 @@ class PortScannerAsync(object):
         return
 
 
-    def scan(self, hosts='127.0.0.1', ports=None, arguments='-sV', callback=None, callback_arguments=None):
+    def scan(self, hosts='127.0.0.1', ports=None, arguments='-sV', callback=None):
         """
         Scan given hosts in a separate process and return host by host result using callback function
 
@@ -516,25 +429,21 @@ class PortScannerAsync(object):
         assert type(ports) in (str, type(None)), 'Wrong type for [ports], should be a string [was {0}]'.format(type(ports))
         assert type(arguments) is str, 'Wrong type for [arguments], should be a string [was {0}]'.format(type(arguments))
         assert type(callback) in (types.FunctionType, type(None)), 'Wrong type for [callback], should be a function or None [was {0}]'.format(type(callback))
-        assert type(callback_arguments) in (types.ListType, types.TupleType, type(None)), 'Wrong type for [callback_arguments], should be a list, tuple, dictionary or None [was {0}]'.format(type(callback_arguments))
         
-        def scan_progressive(self, hosts, ports, arguments, callback, callback_arguments):
+        def scan_progressive(self, hosts, ports, arguments, callback):
             for host in self._nm.listscan(hosts):
                 try:
                     scan_data = self._nm.scan(host, ports, arguments)
                 except PortScannerError:
                     pass
                 if callback is not None and isinstance(callback, collections.Callable):
-                    if callback_arguments is not None:
-                        callback(host, scan_data, callback_arguments)
-                    else:
-                        callback(host, scan_data)
+                    callback(host, scan_data)
 
             return
 
         self._process = Process(
             target=scan_progressive,
-            args=(self, hosts, ports, arguments, callback, callback_arguments)
+            args=(self, hosts, ports, arguments, callback)
             )
         self._process.daemon = True
         self._process.start()
@@ -773,6 +682,3 @@ if __name__ == '__main__':
     import doctest
     # non regression test
     doctest.testmod()
-
-
-#<EOF>######################################################################
